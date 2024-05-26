@@ -4,8 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using System.IO;
-using Microsoft.AspNet.Identity;
 
 namespace OnlineStorePracticalWork.Controllers
 {
@@ -48,19 +46,18 @@ namespace OnlineStorePracticalWork.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin,Seller")]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,Name,Description,Price,Stock,Category,SellerId")] Product product, HttpPostedFileBase image)
+        public ActionResult Create([Bind(Include = "ID,Name,Description,Price,Stock,Category,ImagePath")] Product product, HttpPostedFileBase upload)
         {
             if (ModelState.IsValid)
             {
-                if (image != null && image.ContentLength > 0)
+                if (upload != null && upload.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(image.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Images"), fileName);
-                    image.SaveAs(path);
-                    product.ImagePath = "/Images/" + fileName;
+                    var fileName = System.IO.Path.GetFileName(upload.FileName);
+                    var path = System.IO.Path.Combine(Server.MapPath("~/Images/"), fileName);
+                    upload.SaveAs(path);
+                    product.ImagePath = "~/Images/" + fileName;
                 }
 
-                product.SellerId = User.Identity.GetUserId();
                 db.Products.Add(product);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -89,16 +86,16 @@ namespace OnlineStorePracticalWork.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin,Seller")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,Name,Description,Price,Stock,Category,SellerId,ImagePath")] Product product, HttpPostedFileBase image)
+        public ActionResult Edit([Bind(Include = "ID,Name,Description,Price,Stock,Category,ImagePath")] Product product, HttpPostedFileBase upload)
         {
             if (ModelState.IsValid)
             {
-                if (image != null && image.ContentLength > 0)
+                if (upload != null && upload.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(image.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Images"), fileName);
-                    image.SaveAs(path);
-                    product.ImagePath = "/Images/" + fileName;
+                    var fileName = System.IO.Path.GetFileName(upload.FileName);
+                    var path = System.IO.Path.Combine(Server.MapPath("~/Images/"), fileName);
+                    upload.SaveAs(path);
+                    product.ImagePath = "~/Images/" + fileName;
                 }
 
                 db.Entry(product).State = EntityState.Modified;
@@ -144,17 +141,11 @@ namespace OnlineStorePracticalWork.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: Product/Categories
-        [AllowAnonymous]
-        public ActionResult Categories()
-        {
-            return View();
-        }
-
-        // GET: Product/Category/Electronics
+        // GET: Product/Category/{name}
         [AllowAnonymous]
         public ActionResult Category(string name)
         {
+            ViewBag.CategoryName = name;
             var products = db.Products.Where(p => p.Category == name).ToList();
             return View(products);
         }
