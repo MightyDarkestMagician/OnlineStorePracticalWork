@@ -5,6 +5,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.IO;
+using Microsoft.AspNet.Identity;
 
 namespace OnlineStorePracticalWork.Controllers
 {
@@ -36,67 +37,30 @@ namespace OnlineStorePracticalWork.Controllers
             return View(product);
         }
 
-        [HttpPost]
+        // GET: Product/Create
         [Authorize(Roles = "Admin,Seller")]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,Name,Description,Price,Stock,Category")] Product product, HttpPostedFileBase imageFile)
+        public ActionResult Create()
         {
-            if (ModelState.IsValid)
-            {
-                if (imageFile != null && imageFile.ContentLength > 0)
-                {
-                    var fileName = Path.GetFileName(imageFile.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Images/"), fileName);
-                    imageFile.SaveAs(path);
-                    product.ImagePath = "~/Images/" + fileName;
-                }
-
-                db.Products.Add(product);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            return View(product);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin,Seller")]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,Name,Description,Price,Stock,Category")] Product product, HttpPostedFileBase imageFile)
-        {
-            if (ModelState.IsValid)
-            {
-                if (imageFile != null && imageFile.ContentLength > 0)
-                {
-                    var fileName = Path.GetFileName(imageFile.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Images/"), fileName);
-                    imageFile.SaveAs(path);
-                    product.ImagePath = "~/Images/" + fileName;
-                }
-
-                db.Entry(product).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(product);
+            return View();
         }
 
         // POST: Product/Create
         [HttpPost]
         [Authorize(Roles = "Admin,Seller")]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,Name,Description,Price,Stock,Category")] Product product, HttpPostedFileBase imageFile)
+        public ActionResult Create([Bind(Include = "ID,Name,Description,Price,Stock,Category,SellerId")] Product product, HttpPostedFileBase image)
         {
             if (ModelState.IsValid)
             {
-                if (imageFile != null && imageFile.ContentLength > 0)
+                if (image != null && image.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(imageFile.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Content/Images"), fileName);
-                    imageFile.SaveAs(path);
-                    product.ImageUrl = "/Content/Images/" + fileName;
+                    var fileName = Path.GetFileName(image.FileName);
+                    var path = Path.Combine(Server.MapPath("~/Images"), fileName);
+                    image.SaveAs(path);
+                    product.ImagePath = "/Images/" + fileName;
                 }
 
+                product.SellerId = User.Identity.GetUserId();
                 db.Products.Add(product);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -125,16 +89,16 @@ namespace OnlineStorePracticalWork.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin,Seller")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,Name,Description,Price,Stock,Category")] Product product, HttpPostedFileBase imageFile)
+        public ActionResult Edit([Bind(Include = "ID,Name,Description,Price,Stock,Category,SellerId,ImagePath")] Product product, HttpPostedFileBase image)
         {
             if (ModelState.IsValid)
             {
-                if (imageFile != null && imageFile.ContentLength > 0)
+                if (image != null && image.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(imageFile.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Content/Images"), fileName);
-                    imageFile.SaveAs(path);
-                    product.ImageUrl = "/Content/Images/" + fileName;
+                    var fileName = Path.GetFileName(image.FileName);
+                    var path = Path.Combine(Server.MapPath("~/Images"), fileName);
+                    image.SaveAs(path);
+                    product.ImagePath = "/Images/" + fileName;
                 }
 
                 db.Entry(product).State = EntityState.Modified;
@@ -167,9 +131,9 @@ namespace OnlineStorePracticalWork.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Product product = db.Products.Find(id);
-            if (!string.IsNullOrEmpty(product.ImageUrl))
+            if (!string.IsNullOrEmpty(product.ImagePath))
             {
-                var path = Server.MapPath(product.ImageUrl);
+                var path = Server.MapPath(product.ImagePath);
                 if (System.IO.File.Exists(path))
                 {
                     System.IO.File.Delete(path);

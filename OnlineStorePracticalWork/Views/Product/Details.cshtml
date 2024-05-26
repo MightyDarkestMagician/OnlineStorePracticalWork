@@ -41,13 +41,14 @@
             @Html.DisplayFor(model => model.Category)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ImageUrl)
+            Изображение
         </dt>
         <dd>
-            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-responsive" />
+            <img src="@Url.Content(Model.ImagePath)" alt="Product Image" class="img-thumbnail" style="max-height: 150px;" />
         </dd>
     </dl>
 </div>
 <div>
+    @Html.ActionLink("Редактировать", "Edit", new { id = Model.ID }) |
     @Html.ActionLink("Вернуться к списку", "Index")
 </div>

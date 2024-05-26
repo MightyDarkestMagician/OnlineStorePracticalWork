@@ -6,7 +6,7 @@
 
 <h2>Удаление товара</h2>
 
-<h3>Вы действительно хотите удалить этот товар?</h3>
+<h3>Вы уверены, что хотите удалить этот товар?</h3>
 <div>
     <h4>Товар</h4>
     <hr />
@@ -42,10 +42,10 @@
             @Html.DisplayFor(model => model.Category)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ImageUrl)
+            Изображение
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ImageUrl)
+            <img src="@Url.Content(Model.ImagePath)" alt="Product Image" class="img-thumbnail" style="max-height: 150px;" />
         </dd>
     </dl>
 
