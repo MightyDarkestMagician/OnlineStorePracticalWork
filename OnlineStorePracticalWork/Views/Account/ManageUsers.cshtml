@@ -1,0 +1,32 @@
+@model IEnumerable<OnlineStorePracticalWork.Models.AppUser>
+
+@{
+    ViewBag.Title = "Управление пользователями";
+}
+
+<h2>Управление пользователями</h2>
+
+<table class="table">
+    <tr>
+        <th>Имя пользователя</th>
+        <th>Email</th>
+        <th>Роль</th>
+        <th>Действия</th>
+    </tr>
+
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.UserName</td>
+            <td>@user.Email</td>
+            <td>@user.Roles.FirstOrDefault()?.RoleId</td>
+            <td>
+                @Html.ActionLink("Удалить", "DeleteUser", new { id = user.Id }, new { @class = "btn btn-danger" })
+            </td>
+        </tr>
+    }
+</table>
+
+<div>
+    @Html.ActionLink("Вернуться на главную", "Index", "Home", new { @class = "btn btn-secondary" })
+</div>

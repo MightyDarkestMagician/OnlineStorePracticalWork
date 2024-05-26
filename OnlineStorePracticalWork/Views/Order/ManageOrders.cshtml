@@ -1,0 +1,36 @@
+@model IEnumerable<OnlineStorePracticalWork.Models.Order>
+
+@{
+    ViewBag.Title = "Управление заказами";
+}
+
+<h2>Управление заказами</h2>
+
+<table class="table">
+    <tr>
+        <th>Номер заказа</th>
+        <th>ФИО</th>
+        <th>Телефон</th>
+        <th>Email</th>
+        <th>Дата заказа</th>
+        <th>Действия</th>
+    </tr>
+
+    @foreach (var order in Model)
+    {
+        <tr>
+            <td>@order.Id</td>
+            <td>@order.FullName</td>
+            <td>@order.Phone</td>
+            <td>@order.Email</td>
+            <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
+            <td>
+                @Html.ActionLink("Детали", "OrderDetails", new { id = order.Id }, new { @class = "btn btn-primary" })
+            </td>
+        </tr>
+    }
+</table>
+
+<div>
+    @Html.ActionLink("Вернуться на главную", "Index", "Home", new { @class = "btn btn-secondary" })
+</div>

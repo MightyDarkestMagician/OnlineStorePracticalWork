@@ -1,0 +1,41 @@
+@model OnlineStorePracticalWork.Models.Order
+
+@{
+    ViewBag.Title = "Подтверждение заказа";
+}
+
+<h2>Подтверждение заказа</h2>
+
+<div>
+    <h4>Спасибо за ваш заказ!</h4>
+    <p>Ваш заказ был успешно оформлен. Наши менеджеры свяжутся с вами для уточнения деталей.</p>
+    <p><strong>Номер заказа:</strong> @Model.ID</p>
+    <p><strong>ФИО:</strong> @Model.FullName</p>
+    <p><strong>Телефон:</strong> @Model.Phone</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Дата заказа:</strong> @Model.OrderDate.ToString("dd.MM.yyyy")</p>
+    <hr />
+    <h4>Детали заказа</h4>
+    <table class="table">
+        <tr>
+            <th>Товар</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Итого</th>
+        </tr>
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Product.Price.ToString("C")</td>
+                <td>@(item.Quantity * item.Product.Price).ToString("C")</td>
+            </tr>
+        }
+    </table>
+    <p><strong>Общая сумма: </strong>@Model.OrderDetails.Sum(item => item.Quantity * item.Product.Price).ToString("C")</p>
+</div>
+
+<div>
+    @Html.ActionLink("Вернуться на главную", "Index", "Home", new { @class = "btn btn-primary" })
+</div>

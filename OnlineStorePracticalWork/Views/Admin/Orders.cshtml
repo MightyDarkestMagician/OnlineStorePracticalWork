@@ -1,0 +1,30 @@
+@model IEnumerable<OnlineStorePracticalWork.Models.Order>
+
+@{
+    ViewBag.Title = "Заказы";
+}
+
+<h2>Заказы</h2>
+
+<table class="table">
+    <tr>
+        <th>ФИО</th>
+        <th>Телефон</th>
+        <th>Email</th>
+        <th>Дата заказа</th>
+        <th>Действия</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.FullName</td>
+            <td>@item.Phone</td>
+            <td>@item.Email</td>
+            <td>@item.OrderDate</td>
+            <td>
+                @Html.ActionLink("Подробнее", "OrderDetails", new { id = item.ID })
+            </td>
+        </tr>
+    }
+</table>

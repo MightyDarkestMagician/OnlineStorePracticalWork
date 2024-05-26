@@ -1,0 +1,49 @@
+@model OnlineStorePracticalWork.Models.Order
+
+@{
+    ViewBag.Title = "Детали заказа";
+}
+
+<h2>Детали заказа</h2>
+
+<div>
+    <h4>Информация о заказе</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>Номер заказа</dt>
+        <dd>@Model.ID</dd>
+        <dt>ФИО</dt>
+        <dd>@Model.FullName</dd>
+        <dt>Телефон</dt>
+        <dd>@Model.Phone</dd>
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+        <dt>Дата заказа</dt>
+        <dd>@Model.OrderDate.ToString("dd.MM.yyyy")</dd>
+    </dl>
+
+    <hr />
+    <h4>Детали заказа</h4>
+    <table class="table">
+        <tr>
+            <th>Товар</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Итого</th>
+        </tr>
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Product.Price.ToString("C")</td>
+                <td>@(item.Quantity * item.Product.Price).ToString("C")</td>
+            </tr>
+        }
+    </table>
+    <p><strong>Общая сумма: </strong>@Model.OrderDetails.Sum(item => item.Quantity * item.Product.Price).ToString("C")</p>
+</div>
+
+<div>
+    @Html.ActionLink("Вернуться к заказам", "ManageOrders", "Order", new { @class = "btn btn-secondary" })
+</div>

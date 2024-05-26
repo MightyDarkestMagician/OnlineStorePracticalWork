@@ -1,0 +1,32 @@
+@model OnlineStorePracticalWork.Models.AppUser
+
+@{
+    ViewBag.Title = "Удалить пользователя";
+}
+
+<h2>Удалить пользователя</h2>
+
+<h3>Вы действительно хотите удалить этого пользователя?</h3>
+<div>
+    <h4>Пользователь</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>Имя пользователя</dt>
+        <dd>@Model.UserName</dd>
+
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+
+        <dt>Роль</dt>
+        <dd>@Model.Roles.FirstOrDefault()?.RoleId</dd>
+    </dl>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-actions no-color">
+            <input type="submit" value="Удалить" class="btn btn-danger" /> |
+            @Html.ActionLink("Отмена", "ManageUsers")
+        </div>
+    }
+</div>

@@ -1,0 +1,56 @@
+@model OnlineStorePracticalWork.Models.OrderDetail
+
+@{
+    ViewBag.Title = "Добавление в корзину";
+}
+
+<h2>Добавление в корзину</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Товар</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @Html.HiddenFor(model => model.ProductID)
+
+        <div class="form-group">
+            @Html.Label("Название")
+            <div class="col-md-10">
+                @Html.DisplayFor(model => model.Product.Name)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Цена")
+            <div class="col-md-10">
+                @Html.DisplayFor(model => model.Product.Price)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Quantity, "Количество", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Quantity, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Добавить в корзину" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Вернуться к списку", "Index", "Product", null, new { @class = "btn btn-secondary" })
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

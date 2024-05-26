@@ -1,0 +1,35 @@
+@model OnlineStorePracticalWork.Models.Order
+
+@{
+    ViewBag.Title = "Детали заказа";
+}
+
+<h2>Детали заказа</h2>
+
+<div>
+    <h4>Информация о клиенте</h4>
+    <p>ФИО: @Model.FullName</p>
+    <p>Телефон: @Model.Phone</p>
+    <p>Email: @Model.Email</p>
+    <p>Дата заказа: @Model.OrderDate</p>
+</div>
+
+<div>
+    <h4>Товары в заказе</h4>
+    <table class="table">
+        <tr>
+            <th>Название</th>
+            <th>Количество</th>
+            <th>Цена</th>
+        </tr>
+
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Product.Price * item.Quantity</td>
+            </tr>
+        }
+    </table>
+</div>

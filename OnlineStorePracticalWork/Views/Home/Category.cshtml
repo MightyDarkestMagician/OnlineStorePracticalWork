@@ -1,0 +1,25 @@
+@model IEnumerable<OnlineStorePracticalWork.Models.Product>
+
+@{
+    ViewBag.Title = "Товары в категории";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Товары в категории</h2>
+        </div>
+    </div>
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4">
+                <h3>@item.Name</h3>
+                <p>@item.Description</p>
+                <p>Цена: @item.Price</p>
+                <p>Количество на складе: @item.Stock</p>
+                <p><a class="btn btn-default" href="@Url.Action("Details", "Home", new { id = item.ID })">Подробнее »</a></p>
+            </div>
+        }
+    </div>
+</div>

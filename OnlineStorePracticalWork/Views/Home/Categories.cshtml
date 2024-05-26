@@ -1,0 +1,22 @@
+@model IEnumerable<string>
+
+@{
+    ViewBag.Title = "Категории товаров";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Категории товаров</h2>
+        </div>
+    </div>
+    <div class="row">
+        @foreach (var category in Model)
+        {
+            <div class="col-md-4">
+                <h3>@category</h3>
+                <p><a class="btn btn-default" href="@Url.Action("Category", "Home", new { name = category })">Смотреть товары »</a></p>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,48 @@
+@model IEnumerable<OnlineStorePracticalWork.Models.OrderDetail>
+
+@{
+    ViewBag.Title = "Корзина";
+}
+
+<h2>Корзина</h2>
+
+@if (!Model.Any())
+{
+    <p>Ваша корзина пуста</p>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th>Товар</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Product.Price.ToString("C")</td>
+                <td>
+                    @Html.ActionLink("Удалить", "RemoveFromCart", new { id = item.ID }, new { @class = "btn btn-danger" })
+                </td>
+            </tr>
+        }
+    </table>
+
+    <p>
+        <strong>Общая сумма: </strong>
+        @Model.Sum(item => item.Product.Price * item.Quantity).ToString("C")
+    </p>
+
+    <p>
+        @Html.ActionLink("Оформить заказ", "Checkout", "Order", new { @class = "btn btn-primary" })
+    </p>
+}
+<div>
+    @Html.ActionLink("Продолжить покупки", "Index", "Product", new { @class = "btn btn-secondary" })
+</div>
+

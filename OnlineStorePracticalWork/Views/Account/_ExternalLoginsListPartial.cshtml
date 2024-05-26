@@ -1,0 +1,32 @@
+﻿@model OnlineStorePracticalWork.Models.ExternalLoginListViewModel
+@using Microsoft.Owin.Security
+
+<h4>Используйте другой сервис для входа.</h4>
+<hr />
+@{
+    var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+    if (loginProviders.Count() == 0)
+    {
+        <div>
+            <p>
+                Внешние сервисы аутентификации не настроены. См. <a href="https://go.microsoft.com/fwlink/?LinkId=403804">эту статью</a>
+                для получения подробной информации о настройке данного приложения ASP.NET для поддержки входа через внешние сервисы.
+            </p>
+        </div>
+    }
+    else
+    {
+        using (Html.BeginForm("ExternalLogin", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            <div id="socialLoginList">
+                <p>
+                    @foreach (AuthenticationDescription p in loginProviders)
+                    {
+                        <button type="submit" class="btn btn-outline-dark" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Войти с помощью @p.Caption">@p.AuthenticationType</button>
+                    }
+                </p>
+            </div>
+        }
+    }
+}

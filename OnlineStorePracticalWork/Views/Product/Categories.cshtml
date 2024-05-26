@@ -1,0 +1,28 @@
+@{
+    ViewBag.Title = "Категории товаров";
+}
+
+<h2>Категории товаров</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <h3>Электроника</h3>
+        <p><img src="~/Content/images/electronics.jpg" alt="Электроника" class="img-responsive" /></p>
+        <p><a class="btn btn-default" href="@Url.Action("Category", "Product", new { name = "Electronics" })">Смотреть товары »</a></p>
+    </div>
+    <div class="col-md-4">
+        <h3>Одежда</h3>
+        <p><img src="~/Content/images/clothing.jpg" alt="Одежда" class="img-responsive" /></p>
+        <p><a class="btn btn-default" href="@Url.Action("Category", "Product", new { name = "Clothing" })">Смотреть товары »</a></p>
+    </div>
+    <div class="col-md-4">
+        <h3>Книги</h3>
+        <p><img src="~/Content/images/books.jpg" alt="Книги" class="img-responsive" /></p>
+        <p><a class="btn btn-default" href="@Url.Action("Category", "Product", new { name = "Books" })">Смотреть товары »</a></p>
+    </div>
+</div>
+
+<div>
+    @Html.ActionLink("Вернуться на главную", "Index", "Home", null, new { @class = "btn btn-secondary" })
+</div>
+ 
