@@ -36,11 +36,49 @@ namespace OnlineStorePracticalWork.Controllers
             return View(product);
         }
 
-        // GET: Product/Create
+        [HttpPost]
         [Authorize(Roles = "Admin,Seller")]
-        public ActionResult Create()
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(Include = "ID,Name,Description,Price,Stock,Category")] Product product, HttpPostedFileBase imageFile)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                if (imageFile != null && imageFile.ContentLength > 0)
+                {
+                    var fileName = Path.GetFileName(imageFile.FileName);
+                    var path = Path.Combine(Server.MapPath("~/Images/"), fileName);
+                    imageFile.SaveAs(path);
+                    product.ImagePath = "~/Images/" + fileName;
+                }
+
+                db.Products.Add(product);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View(product);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Seller")]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([Bind(Include = "ID,Name,Description,Price,Stock,Category")] Product product, HttpPostedFileBase imageFile)
+        {
+            if (ModelState.IsValid)
+            {
+                if (imageFile != null && imageFile.ContentLength > 0)
+                {
+                    var fileName = Path.GetFileName(imageFile.FileName);
+                    var path = Path.Combine(Server.MapPath("~/Images/"), fileName);
+                    imageFile.SaveAs(path);
+                    product.ImagePath = "~/Images/" + fileName;
+                }
+
+                db.Entry(product).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(product);
         }
 
         // POST: Product/Create

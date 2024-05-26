@@ -10,7 +10,6 @@
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
-            ContextKey = "OnlineStorePracticalWork.Models.ApplicationDbContext";
         }
 
         protected override void Seed(OnlineStorePracticalWork.Models.ApplicationDbContext context)

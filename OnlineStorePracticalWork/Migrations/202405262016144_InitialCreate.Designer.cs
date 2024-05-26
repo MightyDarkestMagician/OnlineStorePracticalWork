@@ -13,7 +13,7 @@ namespace OnlineStorePracticalWork.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202405261855360_InitialCreate"; }
+            get { return "202405262016144_InitialCreate"; }
         }
         
         string IMigrationMetadata.Source
