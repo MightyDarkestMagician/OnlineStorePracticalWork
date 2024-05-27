@@ -33,8 +33,7 @@
                         Stock = c.Int(nullable: false),
                         Category = c.String(nullable: false),
                         SellerId = c.String(maxLength: 128),
-                        ImageUrl = c.String(),
-                        ImageFileName = c.String(),
+                        ImagePath = c.String(),
                     })
                 .PrimaryKey(t => t.ID)
                 .ForeignKey("dbo.AspNetUsers", t => t.SellerId)
