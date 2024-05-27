@@ -1,22 +1,25 @@
-﻿@using Microsoft.AspNet.Identity
-@{
-    var user = Context.User.Identity;
+﻿@if (Request.IsAuthenticated)
+{
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            @Html.ActionLink("Личный Кабинет", "Manage", "Account", null, new { @class = "nav-link" })
+        </li>
+        <li class="nav-item">
+            @Html.ActionLink("Корзина", "Index", "Cart", null, new { @class = "nav-link" })
+        </li>
+        <li class="nav-item">
+            @Html.ActionLink("Выход", "LogOff", "Account", null, new { @class = "nav-link" })
+        </li>
+    </ul>
 }
-
-<ul class="nav navbar-nav navbar-right">
-    @if (user.IsAuthenticated)
-    {
-        <li>@Html.ActionLink("Hello " + user.GetUserName() + "!", "Manage", "Account", routeValues: null, htmlAttributes: new { title = "Manage" })</li>
-        <li>@Html.ActionLink("Корзина", "Index", "Cart", routeValues: null, htmlAttributes: new { title = "Корзина" })</li>
-        <li><a href="javascript:document.getElementById('logoutForm').submit()">Logout</a></li>
-        using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
-        {
-            @Html.AntiForgeryToken()
-        }
-    }
-    else
-    {
-        <li>@Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
-        <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
-    }
-</ul>
+else
+{
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            @Html.ActionLink("Вход", "Login", "Account", null, new { @class = "nav-link" })
+        </li>
+        <li class="nav-item">
+            @Html.ActionLink("Регистрация", "Register", "Account", null, new { @class = "nav-link" })
+        </li>
+    </ul>
+}

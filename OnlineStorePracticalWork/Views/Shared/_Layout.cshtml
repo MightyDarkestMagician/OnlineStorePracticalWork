@@ -21,8 +21,29 @@
                     <li>@Html.ActionLink("О нас", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Контакты", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Категории", "Categories", "Product", new { area = "" }, new { @class = "nav-link" })</li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>@Html.ActionLink("Товары (для админа)", "Index", "Product", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
                 </ul>
-                @Html.Partial("_LoginPartial")
+                <ul class="navbar-nav">
+                    @if (Request.IsAuthenticated)
+                    {
+                        <li>@Html.ActionLink("Личный кабинет", "Profile", "Account", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("Корзина", "Index", "Cart", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>
+                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <a href="javascript:document.getElementById('logoutForm').submit()" class="nav-link">Выход</a>
+                            }
+                        </li>
+                    }
+                    else
+                    {
+                        <li>@Html.ActionLink("Вход", "Login", "Account", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+                </ul>
             </div>
         </div>
     </nav>

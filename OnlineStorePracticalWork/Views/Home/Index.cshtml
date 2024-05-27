@@ -20,12 +20,37 @@
         @foreach (var item in Model)
         {
             <div class="col-md-4">
-                <h3>@item.Name</h3>
-                <p>@item.Description</p>
-                <p>Цена: @item.Price</p>
-                <p>Количество на складе: @item.Stock</p>
-                <p><a class="btn btn-default" href="@Url.Action("Details", "Home", new { id = item.ID })">Подробнее »</a></p>
+                <div class="card mb-4 shadow-sm">
+                    @if (!string.IsNullOrEmpty(item.ImagePath))
+                    {
+                        <img src="@Url.Content(item.ImagePath)" alt="Product Image" class="bd-placeholder-img card-img-top" style="max-height: 200px; width: 100%; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <img src="~/Images/no-image.png" alt="No Image Available" class="bd-placeholder-img card-img-top" style="max-height: 200px; width: 100%; object-fit: cover;" />
+                    }
+                    <div class="card-body">
+                        <h3 class="card-title">@item.Name</h3>
+                        <p class="card-text">@item.Description</p>
+                        <p class="card-text">Цена: @item.Price.ToString("C")</p>
+                        <p class="card-text">Количество на складе: @item.Stock</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Details", "Product", new { id = item.ID })">Подробнее</a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a class="btn btn-sm btn-outline-warning" href="@Url.Action("Edit", "Product", new { id = item.ID })">Редактировать</a>
+                                    <a class="btn btn-sm btn-outline-danger" href="@Url.Action("Delete", "Product", new { id = item.ID })">Удалить</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
     </div>
 </div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

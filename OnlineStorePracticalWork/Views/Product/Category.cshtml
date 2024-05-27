@@ -12,6 +12,7 @@
             <th>Название</th>
             <th>Цена</th>
             <th>Изображение</th>
+            <th>Добавил</th>
             <th></th>
         </tr>
     </thead>
@@ -24,10 +25,16 @@
                 <td>
                     <img src="@Url.Content(item.ImagePath)" alt="Product Image" class="img-thumbnail" style="max-height: 100px;" />
                 </td>
+                <td>@item.Seller.UserName</td>
                 <td>
-                    @Html.ActionLink("Детали", "Details", new { id = item.ID }) |
-                    @Html.ActionLink("Редактировать", "Edit", new { id = item.ID }) |
-                    @Html.ActionLink("Удалить", "Delete", new { id = item.ID })
+                    @Html.ActionLink("Детали", "Details", new { id = item.ID }, new { @class = "btn btn-info" })
+                    @if (User.IsInRole("Admin") || User.IsInRole("Seller"))
+                    {
+                        @: |
+                        @Html.ActionLink("Редактировать", "Edit", new { id = item.ID }, new { @class = "btn btn-warning" })
+                        @: |
+                        @Html.ActionLink("Удалить", "Delete", new { id = item.ID }, new { @class = "btn btn-danger" })
+                    }
                 </td>
             </tr>
         }
@@ -35,5 +42,5 @@
 </table>
 
 <div>
-    @Html.ActionLink("Вернуться к списку", "Index")
+    @Html.ActionLink("Вернуться к списку", "Index", "Product", null, new { @class = "btn btn-secondary" })
 </div>

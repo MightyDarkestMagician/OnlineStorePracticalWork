@@ -1,54 +1,63 @@
 @model OnlineStorePracticalWork.Models.Product
 
 @{
-    ViewBag.Title = "Детали товара";
+    ViewBag.Title = "Детали продукта";
 }
 
-<h2>Детали товара</h2>
+<h2>Детали продукта</h2>
 
-<div>
-    <h4>Товар</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Stock)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Stock)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Category)
-        </dd>
-        <dt>
-            Изображение
-        </dt>
-        <dd>
-            <img src="@Url.Content(Model.ImagePath)" alt="Product Image" class="img-thumbnail" style="max-height: 150px;" />
-        </dd>
-    </dl>
+<div class="card">
+    <div class="card-header">
+        <h4>Продукт</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Price)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Price)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Stock)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Stock)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Category)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Category)</dd>
+
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <dt class="col-sm-3">Изображение</dt>
+                <dd class="col-sm-9">
+                    <img src="@Url.Content(Model.ImagePath)" alt="Product Image" class="img-thumbnail" style="max-height: 200px;" />
+                </dd>
+            }
+
+            @if (Model.Seller != null)
+            {
+                <dt class="col-sm-3">Продавец</dt>
+                <dd class="col-sm-9">@Model.Seller.UserName</dd>
+            }
+            else
+            {
+                <dt class="col-sm-3">Продавец</dt>
+                <dd class="col-sm-9">Информация о продавце недоступна</dd>
+            }
+        </dl>
+    </div>
+    <div class="card-footer">
+        @Html.ActionLink("Редактировать", "Edit", new { id = Model.ID }, new { @class = "btn btn-primary" }) |
+        @using (Html.BeginForm("Delete", "Product", FormMethod.Post, new { onsubmit = "return confirm('Вы уверены, что хотите удалить этот продукт?');" }))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">Удалить</button>
+        }
+        @Html.ActionLink("Назад к списку", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
 </div>
-<div>
-    @Html.ActionLink("Редактировать", "Edit", new { id = Model.ID }) |
-    @Html.ActionLink("Вернуться к списку", "Index")
-</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

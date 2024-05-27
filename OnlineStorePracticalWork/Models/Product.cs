@@ -35,6 +35,6 @@ namespace OnlineStorePracticalWork.Models
         public string SellerId { get; set; }
         public virtual AppUser Seller { get; set; }
 
-        public string ImagePath { get; set; } // Используем это свойство для хранения пути к изображению
+        public string ImagePath { get; set; }
     }
 }
