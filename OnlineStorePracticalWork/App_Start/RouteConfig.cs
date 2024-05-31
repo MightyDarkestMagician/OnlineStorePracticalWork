@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace OnlineStorePracticalWork
@@ -19,7 +15,6 @@ namespace OnlineStorePracticalWork
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
 
-            // Маршруты для Account
             routes.MapRoute(
                 name: "UserProfile",
                 url: "Account/Profile",
@@ -32,21 +27,42 @@ namespace OnlineStorePracticalWork
                 defaults: new { controller = "Account", action = "LogOff" }
             );
 
-            // Маршрут для корзины
             routes.MapRoute(
                 name: "Cart",
-                url: "Cart/Index",
-                defaults: new { controller = "Cart", action = "Index" }
+                url: "Cart/{action}/{id}",
+                defaults: new { controller = "Cart", action = "Index", id = UrlParameter.Optional }
             );
 
-            // Маршрут для управления товарами
+            routes.MapRoute(
+                name: "CartCheckout",
+                url: "Cart/Checkout",
+                defaults: new { controller = "Cart", action = "Checkout" }
+            );
+
+            routes.MapRoute(
+                name: "OrderCheckout",
+                url: "Order/Checkout",
+                defaults: new { controller = "Order", action = "Checkout" }
+            );
+
+            routes.MapRoute(
+                name: "CompleteRegistration",
+                url: "Order/CompleteRegistration/{orderId}",
+                defaults: new { controller = "Order", action = "CompleteRegistration", orderId = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "OrderConfirmation",
+                url: "Order/OrderConfirmation/{id}",
+                defaults: new { controller = "Order", action = "OrderConfirmation", id = UrlParameter.Optional }
+            );
+
             routes.MapRoute(
                 name: "ManageProducts",
                 url: "Products/Manage",
                 defaults: new { controller = "Products", action = "Manage" }
             );
 
-            // Маршруты для категорий товаров
             routes.MapRoute(
                 name: "Categories",
                 url: "Product/Categories",
@@ -64,21 +80,6 @@ namespace OnlineStorePracticalWork
                 url: "Account/Manage",
                 defaults: new { controller = "Account", action = "Profile" }
             );
-
-            // Добавляем маршрут для выхода из аккаунта
-            routes.MapRoute(
-                name: "LogOff",
-                url: "Account/LogOff",
-                defaults: new { controller = "Account", action = "LogOff" }
-            );
-
-            routes.MapRoute(
-                name: "Profile",
-                url: "Account/Profile",
-                defaults: new { controller = "Account", action = "Profile" }
-            );
         }
     }
-
-
 }

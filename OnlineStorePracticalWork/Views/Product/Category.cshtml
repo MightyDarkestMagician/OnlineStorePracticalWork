@@ -4,43 +4,42 @@
     ViewBag.Title = "Товары в категории " + ViewBag.CategoryName;
 }
 
-<h2>Товары в категории @ViewBag.CategoryName</h2>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Название</th>
-            <th>Цена</th>
-            <th>Изображение</th>
-            <th>Добавил</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Товары в категории @ViewBag.CategoryName</h2>
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+                <div class="alert alert-warning">@ViewBag.Message</div>
+            }
+        </div>
+    </div>
+    <div class="row">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                <td>
-                    <img src="@Url.Content(item.ImagePath)" alt="Product Image" class="img-thumbnail" style="max-height: 100px;" />
-                </td>
-                <td>@item.Seller.UserName</td>
-                <td>
-                    @Html.ActionLink("Детали", "Details", new { id = item.ID }, new { @class = "btn btn-info" })
-                    @if (User.IsInRole("Admin") || User.IsInRole("Seller"))
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    @if (!string.IsNullOrEmpty(item.ImagePath))
                     {
-                        @: |
-                        @Html.ActionLink("Редактировать", "Edit", new { id = item.ID }, new { @class = "btn btn-warning" })
-                        @: |
-                        @Html.ActionLink("Удалить", "Delete", new { id = item.ID }, new { @class = "btn btn-danger" })
+                        <img src="@Url.Content(item.ImagePath)" alt="Product Image" class="bd-placeholder-img card-img-top" style="max-height: 200px; width: 100%; object-fit: cover;" />
                     }
-                </td>
-            </tr>
+                    else
+                    {
+                        <img src="~/Images/no-image.png" alt="No Image Available" class="bd-placeholder-img card-img-top" style="max-height: 200px; width: 100%; object-fit: cover;" />
+                    }
+                    <div class="card-body">
+                        <h3 class="card-title">@item.Name</h3>
+                        <p class="card-text">@item.Description</p>
+                        <p class="card-text">Цена: @item.Price.ToString("C")</p>
+                        <p class="card-text">Количество на складе: @item.Stock</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Details", "Product", new { id = item.ID })">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
-
-<div>
-    @Html.ActionLink("Вернуться к списку", "Index", "Product", null, new { @class = "btn btn-secondary" })
+    </div>
 </div>

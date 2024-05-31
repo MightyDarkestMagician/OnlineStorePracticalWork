@@ -25,7 +25,7 @@ namespace OnlineStorePracticalWork.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var order = db.Orders.Include(o => o.OrderDetails).FirstOrDefault(o => o.Id == id);
+            var order = db.Orders.Include(o => o.OrderDetails).FirstOrDefault(o => o.ID == id);
             if (order == null)
             {
                 return HttpNotFound();

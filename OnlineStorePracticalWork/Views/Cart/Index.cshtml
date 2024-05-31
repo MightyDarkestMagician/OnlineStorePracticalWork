@@ -15,6 +15,7 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>Изображение</th>
                 <th>Товар</th>
                 <th>Количество</th>
                 <th>Цена</th>
@@ -25,9 +26,17 @@ else
             @foreach (var item in Model)
             {
                 <tr>
+                    <td>
+                        <img src="@Url.Content(item.Product.ImagePath)" alt="Product Image" class="img-thumbnail" style="max-height: 50px;" />
+                    </td>
                     <td>@item.Product.Name</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.Product.Price</td>
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="updateQuantity(@item.ProductId, -1)">-</button>
+                        <span id="quantity-@item.ProductId">@item.Quantity</span>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="updateQuantity(@item.ProductId, 1)">+</button>
+                        @Html.HiddenFor(m => item.Quantity, new { id = $"hidden-quantity-{item.ProductId}" })
+                    </td>
+                    <td>@item.Product.Price.ToString("C")</td>
                     <td>
                         @using (Html.BeginForm("RemoveFromCart", "Cart", new { id = item.Id }, FormMethod.Post))
                         {
@@ -47,4 +56,28 @@ else
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        function updateQuantity(productId, change) {
+            var quantitySpan = document.getElementById("quantity-" + productId);
+            var currentQuantity = parseInt(quantitySpan.innerText);
+            var newQuantity = currentQuantity + change;
+
+            if (newQuantity < 1) return; // Минимальное количество - 1
+
+            // Проверяем наличие на складе
+            fetch('/Cart/CheckStock?productId=' + productId + '&quantity=' + newQuantity)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        quantitySpan.innerText = newQuantity;
+                        document.getElementById("hidden-quantity-" + productId).value = newQuantity;
+                    } else {
+                        alert('Недостаточно товара на складе');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
 }

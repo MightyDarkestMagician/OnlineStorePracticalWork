@@ -10,18 +10,20 @@ using System.Web.Mvc;
 
 namespace OnlineStorePracticalWork.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Seller")]
     public class ProductController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Product (доступ только для админа)
+        // GET: Product
+        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            return View(db.Products.Include(p => p.Seller).ToList());
+            var products = db.Products.Include(p => p.Seller).ToList();
+            return View(products);
         }
 
-        // GET: Product/Details/5 (доступ разрешен всем)
+        // GET: Product/Details/5
         [AllowAnonymous]
         public ActionResult Details(int? id)
         {
@@ -37,19 +39,18 @@ namespace OnlineStorePracticalWork.Controllers
             return View(product);
         }
 
-        // GET: Product/Categories (доступ разрешен всем)
         [AllowAnonymous]
         public ActionResult Categories()
         {
-            var categories = new List<string> { "Electronics", "Clothing", "Books" }; // Используйте английские названия категорий для согласованности
+            var categories = db.Products.Select(p => p.Category).Distinct().ToList();
             return View(categories);
         }
 
-        // GET: Product/Create (доступ для админа и продавца)
+        // GET: Product/Create
         [Authorize(Roles = "Admin,Seller")]
         public ActionResult Create()
         {
-            ViewBag.Categories = new SelectList(new List<string> { "Electronics", "Clothing", "Books" }); // Используйте английские названия категорий для согласованности
+            ViewBag.Categories = new SelectList(new List<string> { "Электроника", "Одежда", "Книги" });
             return View();
         }
 
@@ -68,18 +69,20 @@ namespace OnlineStorePracticalWork.Controllers
                     product.ImagePath = "~/Images/" + fileName;
                 }
 
-                product.SellerId = User.Identity.GetUserId();
+                var userId = User.Identity.GetUserId();
+                var seller = db.Users.Find(userId);
+                product.Seller = seller;
 
                 db.Products.Add(product);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Categories = new SelectList(new List<string> { "Electronics", "Clothing", "Books" }); // Используйте английские названия категорий для согласованности
+            ViewBag.Categories = new SelectList(new List<string> { "Электроника", "Одежда", "Книги" });
             return View(product);
         }
 
-        // GET: Product/Edit/5 (доступ для админа и продавца)
+        // GET: Product/Edit/5
         [Authorize(Roles = "Admin,Seller")]
         public ActionResult Edit(int? id)
         {
@@ -95,7 +98,7 @@ namespace OnlineStorePracticalWork.Controllers
             return View(product);
         }
 
-        // POST: Product/Edit/5 (доступ для админа и продавца)
+        // POST: Product/Edit/5
         [HttpPost]
         [Authorize(Roles = "Admin,Seller")]
         [ValidateAntiForgeryToken]
@@ -118,7 +121,7 @@ namespace OnlineStorePracticalWork.Controllers
             return View(product);
         }
 
-        // GET: Product/Delete/5 (доступ только для админа)
+        // GET: Product/Delete/5
         [Authorize(Roles = "Admin")]
         public ActionResult Delete(int? id)
         {
@@ -134,45 +137,45 @@ namespace OnlineStorePracticalWork.Controllers
             return View(product);
         }
 
-        // POST: Product/Delete/5 (доступ только для админа)
+        // POST: Product/Delete/5
         [HttpPost, ActionName("Delete")]
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
             Product product = db.Products.Find(id);
-            if (product != null)
+            if (!string.IsNullOrEmpty(product.ImagePath))
             {
-                if (!string.IsNullOrEmpty(product.ImagePath))
+                var path = Server.MapPath(product.ImagePath);
+                if (System.IO.File.Exists(path))
                 {
-                    var path = Server.MapPath(product.ImagePath);
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path);
-                    }
+                    System.IO.File.Delete(path);
                 }
-                db.Products.Remove(product);
-                db.SaveChanges();
             }
+            db.Products.Remove(product);
+            db.SaveChanges();
             return RedirectToAction("Index");
         }
 
-        // GET: Product/Category/{name} (доступ разрешен всем)
+        // GET: Product/Category/{name}
         [AllowAnonymous]
         public ActionResult Category(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
             ViewBag.CategoryName = name;
-            var products = db.Products.Where(p => p.Category == name).Include(p => p.Seller).ToList();
+            var products = db.Products.Include(p => p.Seller).Where(p => p.Category == name).ToList();
+
+            if (!products.Any())
+            {
+                ViewBag.Message = "Нет товаров в данной категории.";
+            }
+
             return View(products);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
     }
 }

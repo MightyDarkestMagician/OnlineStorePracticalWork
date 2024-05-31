@@ -1,8 +1,10 @@
-﻿using System;
+﻿using OnlineStorePracticalWork.Models;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
-using OnlineStorePracticalWork.Models;
+using System;
+using System.Data.Entity;
 
 namespace OnlineStorePracticalWork.Controllers
 {
@@ -14,7 +16,7 @@ namespace OnlineStorePracticalWork.Controllers
         public ActionResult Index()
         {
             var userId = User.Identity.GetUserId();
-            var cartItems = db.CartItems.Where(c => c.UserId == userId).ToList();
+            var cartItems = db.CartItems.Where(c => c.UserId == userId).Include(c => c.Product).ToList();
             return View(cartItems);
         }
 
@@ -57,13 +59,64 @@ namespace OnlineStorePracticalWork.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: Cart/Checkout
-        public ActionResult Checkout()
+        // POST: Cart/Checkout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Checkout(Order order)
         {
-            var userId = User.Identity.GetUserId();
-            var cartItems = db.CartItems.Where(c => c.UserId == userId).ToList();
-            // Implement checkout logic here
-            return View(cartItems);
+            if (ModelState.IsValid)
+            {
+                var userId = User.Identity.GetUserId();
+                var cartItems = db.CartItems.Where(c => c.UserId == userId).Include(c => c.Product).ToList();
+                if (cartItems == null || !cartItems.Any())
+                {
+                    ModelState.AddModelError("", "Ваша корзина пуста.");
+                    return View(order);
+                }
+
+                order.UserId = userId;
+                order.OrderDate = DateTime.Now;
+                order.OrderDetails = cartItems.Select(c => new OrderDetail
+                {
+                    ProductId = c.ProductId,
+                    Quantity = c.Quantity,
+                    Product = c.Product
+                }).ToList();
+                db.Orders.Add(order);
+                db.SaveChanges();
+
+                // Обновление количества товаров на складе
+                foreach (var item in cartItems)
+                {
+                    var product = db.Products.Find(item.ProductId);
+                    if (product != null)
+                    {
+                        product.Stock -= item.Quantity;
+                    }
+                }
+                db.SaveChanges();
+
+                // Очистка корзины
+                db.CartItems.RemoveRange(cartItems);
+                db.SaveChanges();
+
+                // Возвращаем представление для завершения регистрации
+                return RedirectToAction("CompleteRegistration", "Order", new { orderId = order.ID });
+            }
+
+            return View(order);
+        }
+
+        [HttpGet]
+        public JsonResult CheckStock(int productId, int quantity)
+        {
+            var product = db.Products.Find(productId);
+            if (product == null || product.Stock < quantity)
+            {
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
     }
 }

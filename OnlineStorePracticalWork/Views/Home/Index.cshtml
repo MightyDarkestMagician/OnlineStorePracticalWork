@@ -7,7 +7,7 @@
 <div class="jumbotron text-center">
     <h1>Добро пожаловать в наш интернет-магазин!</h1>
     <p class="lead">Самые лучшие товары по выгодным ценам</p>
-    <a class="btn btn-primary btn-lg" href="@Url.Action("Categories", "Home")" role="button">Перейти к покупкам</a>
+    <a class="btn btn-primary btn-lg" href="@Url.Action("Categories", "Product")" role="button">Перейти к категориям товаров</a>
 </div>
 
 <div class="container">
@@ -37,13 +37,19 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
                                 <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Details", "Product", new { id = item.ID })">Подробнее</a>
-                                @if (User.IsInRole("Admin"))
+                                @if (User.IsInRole("Admin") || User.IsInRole("Seller"))
                                 {
                                     <a class="btn btn-sm btn-outline-warning" href="@Url.Action("Edit", "Product", new { id = item.ID })">Редактировать</a>
                                     <a class="btn btn-sm btn-outline-danger" href="@Url.Action("Delete", "Product", new { id = item.ID })">Удалить</a>
                                 }
                             </div>
                         </div>
+                        <form action="@Url.Action("AddToCart", "Cart")" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@item.ID" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="btn btn-success">Купить</button>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -1,10 +1,13 @@
 ﻿using OnlineStorePracticalWork.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Data.Entity;
-using System.Linq;
 using System.Net;
-using System.Web.Mvc;
+using System.Web;
 
 namespace OnlineStorePracticalWork.Controllers
 {
@@ -12,54 +15,21 @@ namespace OnlineStorePracticalWork.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Order/Cart
-        public ActionResult Cart()
-        {
-            var cart = Session["Cart"] as List<OrderDetail> ?? new List<OrderDetail>();
-            return View(cart);
-        }
-
-        // POST: Order/AddToCart
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult AddToCart(OrderDetail orderDetail)
-        {
-            var product = db.Products.Find(orderDetail.ProductId);
-            if (product == null)
-            {
-                return HttpNotFound();
-            }
-
-            var cart = Session["Cart"] as List<OrderDetail> ?? new List<OrderDetail>();
-
-            var existingItem = cart.FirstOrDefault(x => x.ProductId == orderDetail.ProductId);
-            if (existingItem != null)
-            {
-                if (existingItem.Quantity + orderDetail.Quantity > product.Stock)
-                {
-                    ModelState.AddModelError("", "Недостаточно товара на складе.");
-                    return View(orderDetail);
-                }
-                existingItem.Quantity += orderDetail.Quantity;
-            }
-            else
-            {
-                if (orderDetail.Quantity > product.Stock)
-                {
-                    ModelState.AddModelError("", "Недостаточно товара на складе.");
-                    return View(orderDetail);
-                }
-                cart.Add(orderDetail);
-            }
-
-            Session["Cart"] = cart;
-            return RedirectToAction("Cart");
-        }
-
         // GET: Order/Checkout
         public ActionResult Checkout()
         {
-            return View();
+            var userId = User.Identity.GetUserId();
+            var cartItems = db.CartItems.Where(c => c.UserId == userId).Include(c => c.Product).ToList();
+            var order = new Order
+            {
+                OrderDetails = cartItems.Select(c => new OrderDetail
+                {
+                    ProductId = c.ProductId,
+                    Quantity = c.Quantity,
+                    Product = c.Product
+                }).ToList()
+            };
+            return View(order);
         }
 
         // POST: Order/Checkout
@@ -69,20 +39,27 @@ namespace OnlineStorePracticalWork.Controllers
         {
             if (ModelState.IsValid)
             {
-                var cart = Session["Cart"] as List<OrderDetail>;
-                if (cart == null || !cart.Any())
+                var userId = User.Identity.GetUserId();
+                var cartItems = db.CartItems.Where(c => c.UserId == userId).Include(c => c.Product).ToList();
+                if (cartItems == null || !cartItems.Any())
                 {
                     ModelState.AddModelError("", "Ваша корзина пуста.");
                     return View(order);
                 }
 
+                order.UserId = userId;
                 order.OrderDate = DateTime.Now;
-                order.OrderDetails = cart;
+                order.OrderDetails = cartItems.Select(c => new OrderDetail
+                {
+                    ProductId = c.ProductId,
+                    Quantity = c.Quantity,
+                    Product = c.Product
+                }).ToList();
                 db.Orders.Add(order);
                 db.SaveChanges();
 
                 // Обновление количества товаров на складе
-                foreach (var item in cart)
+                foreach (var item in cartItems)
                 {
                     var product = db.Products.Find(item.ProductId);
                     if (product != null)
@@ -92,11 +69,68 @@ namespace OnlineStorePracticalWork.Controllers
                 }
                 db.SaveChanges();
 
-                Session["Cart"] = null;
-                return RedirectToAction("OrderConfirmation", new { id = order.Id });
+                // Очистка корзины
+                db.CartItems.RemoveRange(cartItems);
+                db.SaveChanges();
+
+                // Возвращаем представление для завершения регистрации
+                return RedirectToAction("CompleteRegistration", new { orderId = order.ID });
             }
 
             return View(order);
+        }
+
+        // GET: Order/CompleteRegistration
+        public ActionResult CompleteRegistration(int? orderId)
+        {
+            if (orderId == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var order = db.Orders.Find(orderId);
+            if (order == null)
+            {
+                return HttpNotFound();
+            }
+
+            var registrationModel = new CompleteRegistrationViewModel
+            {
+                OrderId = order.ID,
+                Email = order.Email
+            };
+
+            return View(registrationModel);
+        }
+
+        // POST: Order/CompleteRegistration
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CompleteRegistration(CompleteRegistrationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var userManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+
+                var user = new AppUser { UserName = model.Email, Email = model.Email };
+                var result = userManager.Create(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    userManager.AddToRole(user.Id, "Buyer");
+                    return RedirectToAction("OrderConfirmation", new { id = model.OrderId });
+                }
+                AddErrors(result);
+            }
+
+            return View(model);
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
         }
 
         // GET: Order/OrderConfirmation/5
@@ -112,38 +146,6 @@ namespace OnlineStorePracticalWork.Controllers
                 return HttpNotFound();
             }
             return View(order);
-        }
-
-        // GET: Order/ManageOrders
-        [Authorize(Roles = "Admin")]
-        public ActionResult ManageOrders()
-        {
-            return View(db.Orders.ToList());
-        }
-
-        // GET: Order/OrderDetails/5
-        [Authorize(Roles = "Admin")]
-        public ActionResult OrderDetails(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Order order = db.Orders.Find(id);
-            if (order == null)
-            {
-                return HttpNotFound();
-            }
-            return View(order);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }

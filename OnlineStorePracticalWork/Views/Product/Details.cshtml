@@ -4,28 +4,28 @@
     ViewBag.Title = "Детали продукта";
 }
 
-<h2>Детали продукта</h2>
+<h2>Детали продукта: @Model.Name</h2>
 
 <div class="card">
-    <div class="card-header">
-        <h4>Продукт</h4>
+    <div class="card-header bg-primary text-white">
+        <h4>@Model.Name</h4>
     </div>
     <div class="card-body">
         <dl class="row">
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+            <dt class="col-sm-3">Название</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+            <dt class="col-sm-3">Описание</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Price)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Price)</dd>
+            <dt class="col-sm-3">Цена</dt>
+            <dd class="col-sm-9">@Model.Price.ToString("C")</dd>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Stock)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Stock)</dd>
+            <dt class="col-sm-3">Количество на складе</dt>
+            <dd class="col-sm-9">@Model.Stock</dd>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Category)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Category)</dd>
+            <dt class="col-sm-3">Категория</dt>
+            <dd class="col-sm-9">@Model.Category</dd>
 
             @if (!string.IsNullOrEmpty(Model.ImagePath))
             {
@@ -40,21 +40,27 @@
                 <dt class="col-sm-3">Продавец</dt>
                 <dd class="col-sm-9">@Model.Seller.UserName</dd>
             }
-            else
-            {
-                <dt class="col-sm-3">Продавец</dt>
-                <dd class="col-sm-9">Информация о продавце недоступна</dd>
-            }
         </dl>
     </div>
     <div class="card-footer">
-        @Html.ActionLink("Редактировать", "Edit", new { id = Model.ID }, new { @class = "btn btn-primary" }) |
-        @using (Html.BeginForm("Delete", "Product", FormMethod.Post, new { onsubmit = "return confirm('Вы уверены, что хотите удалить этот продукт?');" }))
+        @if (User.IsInRole("Admin") || User.IsInRole("Seller"))
         {
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-danger">Удалить</button>
+            @Html.ActionLink("Редактировать", "Edit", new { id = Model.ID }, new { @class = "btn btn-primary" }) |
+<form action="@Url.Action("Delete", "Product", new { id = Model.ID })" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить этот продукт?');" style="display:inline;">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Удалить</button>
+</form>
+}
+        @if (!User.IsInRole("Admin") && !User.IsInRole("Seller"))
+        {
+            <form action="@Url.Action("AddToCart", "Cart")" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.ID" />
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit" class="btn btn-success">Купить</button>
+            </form>
         }
-        @Html.ActionLink("Назад к списку", "Index", null, new { @class = "btn btn-secondary" })
+        @Html.ActionLink("Назад к списку", "Index", "Home", null, new { @class = "btn btn-secondary" })
     </div>
 </div>
 
